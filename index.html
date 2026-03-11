@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3 Name Combiner</title>
+<style>
+body { font-family: Arial; margin:40px; background:#f5f7fa; color:#333; }
+h1 { color:#4BB7A8; }
+input, button { padding:8px; font-size:16px; }
+input { width:200px; }
+button { margin-left:8px; background:#4BB7A8; color:#fff; border:none; cursor:pointer; }
+button:hover { background:#3aa595; }
+.results { margin-top:20px; display:flex; gap:40px; }
+.column { flex:1; }
+ul { list-style:none; padding-left:0; }
+li { padding:4px 0; }
+</style>
+</head>
+<body>
+
+<h1>Web3 Name Combiner</h1>
+
+<p>输入你的词：</p>
+<input type="text" id="inputWord" placeholder="输入词...">
+<button onclick="generateCombinations()">生成组合</button>
+
+<div class="results">
+  <div class="column">
+    <h2>前缀组合 (输入 + 词库)</h2>
+    <ul id="prefixList"></ul>
+  </div>
+  <div class="column">
+    <h2>后缀组合 (词库 + 输入)</h2>
+    <ul id="suffixList"></ul>
+  </div>
+</div>
+
+<script>
+let words = [];
+
+// 默认加载 /word.txt
+fetch('word.txt')
+  .then(response => response.text())
+  .then(data => {
+    words = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
+    console.log(`已加载 ${words.length} 个单词`);
+  })
+  .catch(err => console.error("加载 word.txt 失败:", err));
+
+function generateCombinations() {
+  const input = document.getElementById("inputWord").value.trim().toLowerCase();
+  const prefixList = document.getElementById("prefixList");
+  const suffixList = document.getElementById("suffixList");
+
+  prefixList.innerHTML = "";
+  suffixList.innerHTML = "";
+
+  if (!input) { alert("请输入你的词！"); return; }
+  if (!words.length) { alert("词库未加载完成！"); return; }
+
+  words.forEach(word => {
+    const w = word.toLowerCase();
+    // 前缀组合
+    const li1 = document.createElement("li");
+    li1.textContent = input + w + ".com";
+    prefixList.appendChild(li1);
+    // 后缀组合
+    const li2 = document.createElement("li");
+    li2.textContent = w + input + ".com";
+    suffixList.appendChild(li2);
+  });
+}
+</script>
+
+</body>
+</html>
