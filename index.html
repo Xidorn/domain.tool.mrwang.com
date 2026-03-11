@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Name Pro - 一键查词</title>
+    <title>Web3 Name Pro - 一键域名查询</title>
     <style>
         :root {
             --primary: #4BB7A8;
@@ -23,7 +23,7 @@
 
         .container { max-width: 1000px; width: 100%; }
         header { text-align: center; margin-bottom: 30px; }
-        h1 { color: var(--primary); margin-bottom: 8px; }
+        h1 { color: var(--primary); margin-bottom: 8px; font-weight: 800; }
         
         /* 交互区 */
         .search-box {
@@ -40,6 +40,7 @@
             flex: 1; padding: 14px; border-radius: 8px;
             border: 1px solid var(--border); background: #0b1120;
             color: white; font-size: 16px; outline: none;
+            transition: border-color 0.3s;
         }
         input:focus { border-color: var(--primary); }
 
@@ -65,24 +66,35 @@
 
         ul { 
             list-style: none; padding: 0; margin: 0; 
-            max-height: 350px; overflow-y: auto; 
+            max-height: 400px; overflow-y: auto; 
             background: rgba(0,0,0,0.2); border-radius: 8px;
+            border: 1px solid #33415544;
         }
         li { 
             padding: 10px 15px; border-bottom: 1px solid #33415566; 
-            display: flex; justify-content: space-between; font-family: monospace;
+            display: flex; justify-content: space-between; align-items: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 14px;
         }
-        .available { color: var(--success); font-weight: bold; }
-        .registered { color: #64748b; }
+        .available { color: var(--success); font-weight: bold; background: rgba(34, 197, 94, 0.05); }
+        .registered { color: #64748b; font-size: 13px; }
 
         .copy-btn {
             background: #334155; color: #cbd5e1; border: none;
-            padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+            padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px;
+            transition: 0.2s;
         }
         .copy-btn:hover { background: var(--primary); color: white; }
 
-        .whois-link { color: #94a3b8; text-decoration: none; font-size: 11px; }
-        .whois-link:hover { color: var(--primary); }
+        .whois-link { 
+            color: #94a3b8; text-decoration: none; font-size: 11px; 
+            border: 1px solid #475569; padding: 2px 6px; border-radius: 4px;
+        }
+        .whois-link:hover { color: var(--primary); border-color: var(--primary); }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -90,17 +102,17 @@
 <div class="container">
     <header>
         <h1>Web3 Domain Finder</h1>
-        <p>一键合并生成与 Whois 状态检查</p>
+        <p>一键组合生成并实时检查域名状态</p>
     </header>
 
     <div class="search-box">
-        <input type="text" id="inputWord" placeholder="输入词(如: bit, pay, dao)..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
-        <button id="runBtn" class="main-btn" onclick="startCombinedProcess()">开始一键检查</button>
+        <input type="text" id="inputWord" placeholder="输入核心词 (如: meta, block, bit)..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
+        <button id="runBtn" class="main-btn" onclick="startCombinedProcess()">一键生成并查询</button>
     </div>
 
     <div class="progress-wrap" id="progressWrap">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-            <span id="statusTxt">准备中...</span>
+            <span id="statusTxt">初始化任务...</span>
             <span id="percentTxt">0%</span>
         </div>
         <div class="bar-bg"><div class="bar-fill" id="barFill"></div></div>
@@ -109,16 +121,16 @@
     <div class="grid">
         <div class="panel">
             <div class="panel-h">
-                <h2>前缀 [词+词库]</h2>
-                <button class="copy-btn" onclick="copyList('prefixList')">复制未注册</button>
+                <h2>前缀 [核心词 + 词库]</h2>
+                <button class="copy-btn" onclick="copyList('prefixList', this)">复制未注册</button>
             </div>
             <ul id="prefixList"></ul>
         </div>
 
         <div class="panel">
             <div class="panel-h">
-                <h2>后缀 [词库+词]</h2>
-                <button class="copy-btn" onclick="copyList('suffixList')">复制未注册</button>
+                <h2>后缀 [词库 + 核心词]</h2>
+                <button class="copy-btn" onclick="copyList('suffixList', this)">复制未注册</button>
             </div>
             <ul id="suffixList"></ul>
         </div>
@@ -126,58 +138,66 @@
 </div>
 
 <script>
-let words = [];
-const CONCURRENCY = 5; // 并发数
+// 默认 Web3 词库
+let words = ["Alpha","Micro","Meta","Air","Snap","X","Cloud","Blockchain","Crypto","Token","Ledger","Protocol","Consensus","Validator","Node","Chain","Block","Smart","Contract","Oracle","Layer","Bridge","Rollup","Hash","Liquidity","Staking","Yield","Vault","Swap","Lending","Borrow","Pool","Farm","NFT","Mint","Core","Flux","Link","DeFi","Nest","Flow","Pixel","Aura"];
+const CONCURRENCY = 6; // 稍微调高一点点并发
 
-// 自动加载词库
+// 尝试加载本地 word.txt
 fetch('word.txt')
-    .then(res => res.text())
+    .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.text();
+    })
     .then(data => {
-        words = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
-        console.log("词库就绪:", words.length);
+        const loadedWords = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
+        if (loadedWords.length > 0) {
+            words = loadedWords;
+            console.log("已成功加载外部词库 word.txt");
+        }
     })
     .catch(() => {
-        words = ['lab', 'hub', 'dao', 'app', 'web3', 'pay', 'box'];
-        console.log("使用演示词库");
+        console.log("未发现 word.txt，已启用内置 Web3 词库");
     });
 
 async function startCombinedProcess() {
     const input = document.getElementById("inputWord").value.trim().toLowerCase();
-    if (!input) return alert("请输入内容");
-    if (words.length === 0) return alert("词库尚未加载");
-
-    // 1. 初始化界面
+    if (!input) return alert("请输入核心词！");
+    
+    // UI 初始化
     const runBtn = document.getElementById('runBtn');
     const wrap = document.getElementById('progressWrap');
     const prefixUl = document.getElementById('prefixList');
     const suffixUl = document.getElementById('suffixList');
     
     runBtn.disabled = true;
-    runBtn.innerText = "正在查询...";
+    runBtn.innerText = "查询中...";
     wrap.style.display = 'block';
     prefixUl.innerHTML = '';
     suffixUl.innerHTML = '';
 
-    // 2. 生成任务队列
+    // 生成任务队列
     let tasks = [];
     words.forEach(w => {
-        tasks.push({ domain: input + w + ".com", type: 'prefix' });
-        tasks.push({ domain: w + input + ".com", type: 'suffix' });
+        tasks.push({ domain: input + w.toLowerCase() + ".com", type: 'prefix' });
+        tasks.push({ domain: w.toLowerCase() + input + ".com", type: 'suffix' });
     });
 
     const total = tasks.length;
     let finished = 0;
 
-    // 3. 执行并发查询
+    // 核心并发执行器
     async function worker() {
         while (tasks.length > 0) {
             const item = tasks.shift();
             try {
+                // 调用 API 进行 Whois 检查
                 const res = await fetch(`https://api.mrwang.com/whois.php?domain=${item.domain}`);
                 const data = await res.json();
+                
+                // 渲染结果
                 renderItem(item.domain, item.type, data.data.registered);
             } catch (e) {
-                console.error("查询出错:", item.domain);
+                console.warn(`跳过查询失败的域名: ${item.domain}`);
             } finally {
                 finished++;
                 updateProgress(finished, total);
@@ -185,28 +205,35 @@ async function startCombinedProcess() {
         }
     }
 
-    // 启动多个“工人”同时干活
-    await Promise.all(Array(CONCURRENCY).fill(null).map(worker));
+    // 启动多协程
+    const workers = Array(Math.min(CONCURRENCY, tasks.length)).fill(null).map(worker);
+    await Promise.all(workers);
 
     runBtn.disabled = false;
-    runBtn.innerText = "再次查询";
-    document.getElementById('statusTxt').innerText = "全部检查完成！";
+    runBtn.innerText = "一键生成并查询";
+    document.getElementById('statusTxt').innerText = "检查已全部完成";
 }
 
 function renderItem(domain, type, isReg) {
-    const ul = document.getElementById(type === 'prefix' ? 'prefixList' : 'suffixList');
+    const ulId = type === 'prefix' ? 'prefixList' : 'suffixList';
+    const ul = document.getElementById(ulId);
     const li = document.createElement('li');
-    li.className = isReg ? 'registered' : 'available';
-    // 给未注册的 span 加个特定类名方便复制逻辑抓取
-    const domainSpan = isReg ? `<span>${domain}</span>` : `<span class="domain-text">${domain}</span>`;
     
+    li.className = isReg ? 'registered' : 'available';
+    
+    // 这里使用 class="domain-name" 标记我们要复制的内容
+    const content = isReg 
+        ? `<span>${domain}</span>` 
+        : `<span class="domain-name">${domain}</span>`;
+
     li.innerHTML = `
-        ${domainSpan}
+        ${content}
         <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">WHOIS</a>
     `;
     
+    // 未注册的域名（绿色）置顶，已注册的追加到末尾
     if (!isReg) {
-        ul.insertBefore(li, ul.firstChild); // 未注册的置顶
+        ul.insertBefore(li, ul.firstChild);
     } else {
         ul.appendChild(li);
     }
@@ -216,31 +243,35 @@ function updateProgress(done, total) {
     const p = Math.round((done / total) * 100);
     document.getElementById('barFill').style.width = p + '%';
     document.getElementById('percentTxt').innerText = p + '%';
-    document.getElementById('statusTxt').innerText = `进度: ${done} / ${total}`;
+    document.getElementById('statusTxt').innerText = `已处理: ${done} / ${total}`;
 }
 
-// 修复后的复制功能
-function copyList(ulId) {
+// 修复并优化后的复制功能
+function copyList(ulId, btnEl) {
     const ul = document.getElementById(ulId);
-    // 只选取 class 为 domain-text 的内容（即未注册的）
-    const domains = Array.from(ul.querySelectorAll('.available .domain-text'))
-                         .map(el => el.innerText);
+    // 关键修复：只选取 .available 类名下带有 .domain-name 的元素
+    const elements = ul.querySelectorAll('.available .domain-name');
+    const domains = Array.from(elements).map(el => el.innerText);
     
     if (domains.length === 0) {
-        alert("没有可复制的未注册域名");
+        alert("列表中没有可注册的域名可以复制");
         return;
     }
 
-    const text = domains.join('\n');
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "已复制！";
-        btn.style.background = "#22c55e";
+    const textToCopy = domains.join('\n');
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = btnEl.innerText;
+        btnEl.innerText = "复制成功！";
+        btnEl.style.background = "#22c55e";
+        
         setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = "";
+            btnEl.innerText = originalText;
+            btnEl.style.background = "";
         }, 1500);
+    }).catch(err => {
+        console.error("无法复制: ", err);
+        alert("复制失败，请检查浏览器权限");
     });
 }
 </script>
