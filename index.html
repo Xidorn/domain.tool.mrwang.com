@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web3 Name Combiner + Whois Check</title>
+<title>Web3 Name Combiner + Whois</title>
 <style>
 body { font-family: Arial; margin:40px; background:#f5f7fa; color:#333; }
 h1 { color:#4BB7A8; }
@@ -11,51 +11,51 @@ input, button { padding:8px; font-size:16px; }
 input { width:200px; }
 button { margin-left:8px; background:#4BB7A8; color:#fff; border:none; cursor:pointer; }
 button:hover { background:#3aa595; }
-.results { margin-top:20px; display:flex; gap:40px; flex-wrap:wrap; }
-.column { flex:1; min-width:300px; }
-ul { list-style:none; padding-left:0; max-height:400px; overflow:auto; background:#fff; padding:10px; border-radius:5px; box-shadow:0 0 8px rgba(0,0,0,0.1);}
+ul { list-style:none; padding-left:0; max-height:200px; overflow:auto; background:#fff; padding:10px; border-radius:5px; box-shadow:0 0 8px rgba(0,0,0,0.1);}
 li { padding:4px 0; display:flex; justify-content:space-between; align-items:center; }
 .copyBtn { margin-top:10px; padding:6px 12px; font-size:14px; cursor:pointer; background:#4BB7A8; color:#fff; border:none; border-radius:3px; }
 .copyBtn:hover { background:#3aa595; }
-a.domain { color:#333; text-decoration:none; margin-right:6px; }
-a.domain:hover { text-decoration:underline; }
-a.whois { font-size:12px; color:#4BB7A8; margin-left:6px; }
+a.whois { font-size:12px; color:#4BB7A8; margin-left:6px; text-decoration:none; }
 a.whois:hover { text-decoration:underline; }
-.statusLabel { font-weight:bold; margin-left:10px; }
 .status-available { color:green; }
 .status-registered { color:red; }
+.column { margin-bottom:30px; }
+.column h3 { margin:10px 0 5px; }
 </style>
 </head>
 <body>
 
-<h1>Web3 Name Combiner + Whois Check</h1>
+<h1>Web3 Name Combiner + Whois</h1>
 
 <p>输入你的词：</p>
 <input type="text" id="inputWord" placeholder="输入词...">
 <button onclick="generateCombinations()">生成组合</button>
 <button onclick="checkAllWhois()">检查 Whois</button>
 
-<div class="results">
-  <div class="column">
-    <h2>组合列表</h2>
-    <ul id="allCombinations"></ul>
-  </div>
-  <div class="column">
-    <h2>状态分类</h2>
-    <h3>未注册</h3>
-    <ul id="availableList"></ul>
-    <h3>已注册</h3>
-    <ul id="registeredList"></ul>
-    <button class="copyBtn" onclick="copyToClipboard('availableList')">复制未注册</button>
-    <button class="copyBtn" onclick="copyToClipboard('registeredList')">复制已注册</button>
-  </div>
+<div class="column">
+<h2>前缀组合 (输入词在前)</h2>
+<h3>未注册</h3>
+<ul id="prefixAvailable"></ul>
+<button class="copyBtn" onclick="copyAvailable('prefixAvailable')">复制前缀未注册</button>
+<h3>已注册</h3>
+<ul id="prefixRegistered"></ul>
+</div>
+
+<div class="column">
+<h2>后缀组合 (输入词在后)</h2>
+<h3>未注册</h3>
+<ul id="suffixAvailable"></ul>
+<button class="copyBtn" onclick="copyAvailable('suffixAvailable')">复制后缀未注册</button>
+<h3>已注册</h3>
+<ul id="suffixRegistered"></ul>
 </div>
 
 <script>
 let words = [];
-let allDomains = [];
+let prefixDomains = [];
+let suffixDomains = [];
 
-// 自动加载 /word.txt
+// 自动加载本地 word.txt
 fetch('word.txt')
   .then(res => res.text())
   .then(data => {
@@ -64,85 +64,85 @@ fetch('word.txt')
   })
   .catch(err => console.error("加载 word.txt 失败:", err));
 
-// 第一步：生成所有组合并显示
+// 生成前后缀组合
 function generateCombinations() {
   const input = document.getElementById("inputWord").value.trim().toLowerCase();
   if (!input) { alert("请输入你的词！"); return; }
   if (!words.length) { alert("词库未加载完成！"); return; }
 
-  const allList = document.getElementById('allCombinations');
-  allList.innerHTML = '';
-  allDomains = [];
+  prefixDomains = [];
+  suffixDomains = [];
 
   words.forEach(word => {
     const w = word.toLowerCase();
-    const prefix = input + w + ".com";
-    const suffix = w + input + ".com";
-    allDomains.push(prefix, suffix);
-
-    // 显示组合
-    [prefix, suffix].forEach(d => {
-      const li = document.createElement('li');
-      li.textContent = d;
-      allList.appendChild(li);
-    });
+    prefixDomains.push(input + w + ".com");
+    suffixDomains.push(w + input + ".com");
   });
 
-  alert(`已生成组合 ${allDomains.length} 个`);
+  alert(`已生成组合: 前缀 ${prefixDomains.length} 个，后缀 ${suffixDomains.length} 个`);
 }
 
-// 第二步：批量检查 Whois
+// 批量检查 Whois
 async function checkAllWhois() {
-  if (!allDomains.length) { alert("请先生成组合"); return; }
+  if (!prefixDomains.length && !suffixDomains.length) { alert("请先生成组合"); return; }
 
-  const availableList = document.getElementById('availableList');
-  const registeredList = document.getElementById('registeredList');
-  availableList.innerHTML = '';
-  registeredList.innerHTML = '';
+  const prefixAvailable = document.getElementById('prefixAvailable');
+  const prefixRegistered = document.getElementById('prefixRegistered');
+  const suffixAvailable = document.getElementById('suffixAvailable');
+  const suffixRegistered = document.getElementById('suffixRegistered');
 
-  for (const domain of allDomains) {
-    try {
-      const res = await fetch(`https://api.mrwang.com/whois.php?domain=${domain}`);
-      const data = await res.json();
+  // 清空
+  prefixAvailable.innerHTML = '';
+  prefixRegistered.innerHTML = '';
+  suffixAvailable.innerHTML = '';
+  suffixRegistered.innerHTML = '';
 
-      const li = document.createElement('li');
-      const domainLink = document.createElement('a');
-      domainLink.href = `https://wxscx.com/${domain}`;
-      domainLink.target = '_blank';
-      domainLink.className = 'domain';
-      domainLink.textContent = domain;
+  async function checkList(domains, availableUl, registeredUl) {
+    for (const domain of domains) {
+      try {
+        const res = await fetch(`https://api.mrwang.com/whois.php?domain=${domain}`);
+        const data = await res.json();
 
-      const whoisLink = document.createElement('a');
-      whoisLink.href = `https://wxscx.com/${domain}`;
-      whoisLink.target = '_blank';
-      whoisLink.className = 'whois';
-      whoisLink.textContent = 'Whois';
+        const li = document.createElement('li');
+        const spanDomain = document.createElement('span');
+        spanDomain.textContent = domain;
 
-      li.appendChild(domainLink);
-      li.appendChild(whoisLink);
+        const whoisLink = document.createElement('a');
+        whoisLink.href = `https://wxscx.com/${domain}`;
+        whoisLink.target = '_blank';
+        whoisLink.className = 'whois';
+        whoisLink.textContent = 'Whois';
 
-      if (data.data.registered) {
-        li.classList.add('status-registered');
-        registeredList.appendChild(li);
-      } else {
-        li.classList.add('status-available');
-        availableList.appendChild(li);
+        li.appendChild(spanDomain);
+        li.appendChild(whoisLink);
+
+        if (data.data.registered) {
+          li.classList.add('status-registered');
+          registeredUl.appendChild(li);
+        } else {
+          li.classList.add('status-available');
+          availableUl.appendChild(li);
+        }
+      } catch (err) {
+        console.error('Whois error', domain, err);
       }
-
-    } catch(err) {
-      console.error('Whois error', domain, err);
     }
   }
+
+  // 分别检查前缀和后缀
+  await checkList(prefixDomains, prefixAvailable, prefixRegistered);
+  await checkList(suffixDomains, suffixAvailable, suffixRegistered);
 
   alert("Whois 检查完成！");
 }
 
-// 一键复制
-function copyToClipboard(listId) {
+// 一键复制未注册
+function copyAvailable(listId) {
   const ul = document.getElementById(listId);
-  const text = Array.from(ul.children).map(li => li.textContent.replace('Whois','').trim()).join("\n");
-  navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板！"))
-  .catch(err => alert("复制失败：" + err));
+  const text = Array.from(ul.children).map(li => li.querySelector('span').textContent).join("\n");
+  navigator.clipboard.writeText(text)
+    .then(() => alert("已复制未注册域名到剪贴板！"))
+    .catch(err => alert("复制失败：" + err));
 }
 </script>
 
