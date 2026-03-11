@@ -212,7 +212,7 @@ function renderItem(domain, type, isReg) {
     li.className = isReg ? 'registered' : 'available';
     li.innerHTML = `
         <span class="domain-name">${domain}</span>
-        <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">WHOIS</a>
+        <a href="https://wxscx.com/${domain}" target="_blank" class="whois-link">WHOIS</a>
     `;
     if (!isReg) ul.insertBefore(li, ul.firstChild);
     else ul.appendChild(li);
