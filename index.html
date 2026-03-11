@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Name Combiner Pro</title>
+    <title>Web3 Name Pro - 一键查词</title>
     <style>
         :root {
             --primary: #4BB7A8;
@@ -17,319 +17,230 @@
 
         body { 
             font-family: 'Inter', system-ui, sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
+            margin: 0; background: var(--bg); color: var(--text);
+            display: flex; justify-content: center; padding: 40px 20px;
         }
 
         .container { max-width: 1000px; width: 100%; }
-
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 10px; }
-        p { color: #94a3b8; }
-
-        /* 输入区 */
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); margin-bottom: 8px; }
+        
+        /* 交互区 */
         .search-box {
             background: var(--card);
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
             border: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
+            display: flex; gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
         }
 
         input {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #0f172a;
-            color: white;
-            font-size: 16px;
-            outline: none;
-            transition: border 0.3s;
+            flex: 1; padding: 14px; border-radius: 8px;
+            border: 1px solid var(--border); background: #0b1120;
+            color: white; font-size: 16px; outline: none;
         }
-
         input:focus { border-color: var(--primary); }
 
-        button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+        .main-btn {
+            padding: 0 30px; border-radius: 8px; border: none;
+            background: var(--primary); color: white;
+            font-weight: 700; cursor: pointer; transition: 0.2s;
         }
-
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        button:disabled { background: #475569; cursor: not-allowed; }
+        .main-btn:hover { background: #3aa595; transform: translateY(-1px); }
+        .main-btn:disabled { background: #475569; cursor: not-allowed; }
 
         /* 进度条 */
-        .progress-container {
-            margin: 20px 0;
-            display: none;
-        }
-        .progress-bar {
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        #progressFill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s;
-        }
+        .progress-wrap { margin-bottom: 25px; display: none; }
+        .bar-bg { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
 
-        /* 结果布局 */
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+        /* 结果展示 */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+        
+        .panel-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .panel-h h2 { font-size: 1.1rem; margin: 0; color: var(--primary); }
+
+        ul { 
+            list-style: none; padding: 0; margin: 0; 
+            max-height: 350px; overflow-y: auto; 
+            background: rgba(0,0,0,0.2); border-radius: 8px;
         }
-
-        .column {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--border);
+        li { 
+            padding: 10px 15px; border-bottom: 1px solid #33415566; 
+            display: flex; justify-content: space-between; font-family: monospace;
         }
-
-        h2 { font-size: 1.2rem; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0 10px;
-        }
-
-        .badge {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: var(--border);
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: rgba(0,0,0,0.2);
-        }
-
-        li {
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .status-available { color: var(--success); }
-        .status-registered { color: #64748b; font-size: 0.9em; }
+        .available { color: var(--success); font-weight: bold; }
+        .registered { color: #64748b; }
 
         .copy-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 4px 8px;
-            font-size: 12px;
+            background: #334155; color: #cbd5e1; border: none;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
         }
         .copy-btn:hover { background: var(--primary); color: white; }
 
-        .whois-link {
-            text-decoration: none;
-            color: var(--primary);
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .whois-link { color: #94a3b8; text-decoration: none; font-size: 11px; }
+        .whois-link:hover { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Web3 Name Combiner</h1>
-        <p>基于本地词库的 .com 域名批量查询工具</p>
+        <h1>Web3 Domain Finder</h1>
+        <p>一键合并生成与 Whois 状态检查</p>
     </header>
 
     <div class="search-box">
-        <input type="text" id="inputWord" placeholder="输入核心词 (如: meta, block, bit)...">
-        <button onclick="generateCombinations()">1. 生成组合</button>
-        <button id="checkBtn" onclick="checkAllWhois()" disabled>2. 开始检查 Whois</button>
+        <input type="text" id="inputWord" placeholder="输入词(如: bit, pay, dao)..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
+        <button id="runBtn" class="main-btn" onclick="startCombinedProcess()">开始一键检查</button>
     </div>
 
-    <div class="progress-container" id="progressContainer">
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:14px;">
-            <span id="progressText">准备检查...</span>
-            <span id="progressPercent">0%</span>
+    <div class="progress-wrap" id="progressWrap">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+            <span id="statusTxt">准备中...</span>
+            <span id="percentTxt">0%</span>
         </div>
-        <div class="progress-bar"><div id="progressFill"></div></div>
+        <div class="bar-bg"><div class="bar-fill" id="barFill"></div></div>
     </div>
 
-    <div class="results-grid">
-        <div class="column">
-            <h2>前缀组合 (Keyword + Word)</h2>
-            
-            <div class="list-header">
-                <span class="status-available">● 可注册</span>
-                <button class="copy-btn" onclick="copyAvailable('prefixAvailable')">复制全部</button>
+    <div class="grid">
+        <div class="panel">
+            <div class="panel-h">
+                <h2>前缀 [词+词库]</h2>
+                <button class="copy-btn" onclick="copyList('prefixList')">复制未注册</button>
             </div>
-            <ul id="prefixAvailable"></ul>
-
-            <div class="list-header">
-                <span style="color:#64748b">● 已占用</span>
-            </div>
-            <ul id="prefixRegistered"></ul>
+            <ul id="prefixList"></ul>
         </div>
 
-        <div class="column">
-            <h2>后缀组合 (Word + Keyword)</h2>
-            
-            <div class="list-header">
-                <span class="status-available">● 可注册</span>
-                <button class="copy-btn" onclick="copyAvailable('suffixAvailable')">复制全部</button>
+        <div class="panel">
+            <div class="panel-h">
+                <h2>后缀 [词库+词]</h2>
+                <button class="copy-btn" onclick="copyList('suffixList')">复制未注册</button>
             </div>
-            <ul id="suffixAvailable"></ul>
-
-            <div class="list-header">
-                <span style="color:#64748b">● 已占用</span>
-            </div>
-            <ul id="suffixRegistered"></ul>
+            <ul id="suffixList"></ul>
         </div>
     </div>
 </div>
 
 <script>
 let words = [];
-let prefixDomains = [];
-let suffixDomains = [];
-const CONCURRENCY_LIMIT = 5; // 同时检查的数量，避免被封IP
+const CONCURRENCY = 5; // 并发数
 
-// 模拟加载词库（实际使用时请保留你的 fetch 代码）
+// 自动加载词库
 fetch('word.txt')
     .then(res => res.text())
     .then(data => {
         words = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
-        console.log(`词库加载成功: ${words.length}条`);
+        console.log("词库就绪:", words.length);
     })
-    .catch(err => {
-        // 容错：如果读取不到文件，可以使用内置演示词
-        words = ['lab', 'hub', 'base', 'dao', 'chain', 'verse', 'net', 'web'];
-        console.warn("未找到 word.txt，加载演示词库");
+    .catch(() => {
+        words = ['lab', 'hub', 'dao', 'app', 'web3', 'pay', 'box'];
+        console.log("使用演示词库");
     });
 
-function generateCombinations() {
+async function startCombinedProcess() {
     const input = document.getElementById("inputWord").value.trim().toLowerCase();
-    if (!input) { alert("请输入核心词！"); return; }
+    if (!input) return alert("请输入内容");
+    if (words.length === 0) return alert("词库尚未加载");
+
+    // 1. 初始化界面
+    const runBtn = document.getElementById('runBtn');
+    const wrap = document.getElementById('progressWrap');
+    const prefixUl = document.getElementById('prefixList');
+    const suffixUl = document.getElementById('suffixList');
     
-    prefixDomains = words.map(w => input + w.toLowerCase() + ".com");
-    suffixDomains = words.map(w => w.toLowerCase() + input + ".com");
+    runBtn.disabled = true;
+    runBtn.innerText = "正在查询...";
+    wrap.style.display = 'block';
+    prefixUl.innerHTML = '';
+    suffixUl.innerHTML = '';
 
-    document.getElementById('checkBtn').disabled = false;
-    alert(`生成成功！共计 ${prefixDomains.length + suffixDomains.length} 个组合。`);
-}
-
-async function checkAllWhois() {
-    const allDomains = [
-        ...prefixDomains.map(d => ({ domain: d, type: 'prefix' })),
-        ...suffixDomains.map(d => ({ domain: d, type: 'suffix' }))
-    ];
-
-    const btn = document.getElementById('checkBtn');
-    const progressContainer = document.getElementById('progressContainer');
-    const fill = document.getElementById('progressFill');
-    const txt = document.getElementById('progressText');
-    const percent = document.getElementById('progressPercent');
-
-    // 重置界面
-    btn.disabled = true;
-    progressContainer.style.display = 'block';
-    ['prefixAvailable', 'prefixRegistered', 'suffixAvailable', 'suffixRegistered'].forEach(id => {
-        document.getElementById(id).innerHTML = '';
+    // 2. 生成任务队列
+    let tasks = [];
+    words.forEach(w => {
+        tasks.push({ domain: input + w + ".com", type: 'prefix' });
+        tasks.push({ domain: w + input + ".com", type: 'suffix' });
     });
 
-    let completed = 0;
-    const total = allDomains.length;
+    const total = tasks.length;
+    let finished = 0;
 
-    // 分批异步处理函数
-    async function processQueue() {
-        while (allDomains.length > 0) {
-            const item = allDomains.shift();
+    // 3. 执行并发查询
+    async function worker() {
+        while (tasks.length > 0) {
+            const item = tasks.shift();
             try {
-                // 建议使用更稳定的 Whois API
                 const res = await fetch(`https://api.mrwang.com/whois.php?domain=${item.domain}`);
                 const data = await res.json();
-                
-                updateUI(item.domain, item.type, data.data.registered);
-            } catch (err) {
-                console.error("查询失败:", item.domain);
+                renderItem(item.domain, item.type, data.data.registered);
+            } catch (e) {
+                console.error("查询出错:", item.domain);
             } finally {
-                completed++;
-                const p = Math.round((completed / total) * 100);
-                fill.style.width = p + '%';
-                percent.innerText = p + '%';
-                txt.innerText = `正在检查: ${item.domain}`;
+                finished++;
+                updateProgress(finished, total);
             }
         }
     }
 
-    // 启动并发
-    const workers = Array(CONCURRENCY_LIMIT).fill(null).map(processQueue);
-    await Promise.all(workers);
+    // 启动多个“工人”同时干活
+    await Promise.all(Array(CONCURRENCY).fill(null).map(worker));
 
-    txt.innerText = "检查完成！";
-    btn.disabled = false;
+    runBtn.disabled = false;
+    runBtn.innerText = "再次查询";
+    document.getElementById('statusTxt').innerText = "全部检查完成！";
 }
 
-function updateUI(domain, type, isRegistered) {
-    const targetId = isRegistered ? `${type}Registered` : `${type}Available`;
-    const ul = document.getElementById(targetId);
-    
+function renderItem(domain, type, isReg) {
+    const ul = document.getElementById(type === 'prefix' ? 'prefixList' : 'suffixList');
     const li = document.createElement('li');
-    li.className = isRegistered ? 'status-registered' : 'status-available';
+    li.className = isReg ? 'registered' : 'available';
+    // 给未注册的 span 加个特定类名方便复制逻辑抓取
+    const domainSpan = isReg ? `<span>${domain}</span>` : `<span class="domain-text">${domain}</span>`;
     
     li.innerHTML = `
-        <span>${domain}</span>
-        <div>
-            <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">Whois</a>
-        </div>
+        ${domainSpan}
+        <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">WHOIS</a>
     `;
     
-    // 未注册的排在前面
-    if (!isRegistered) {
-        ul.insertBefore(li, ul.firstChild);
+    if (!isReg) {
+        ul.insertBefore(li, ul.firstChild); // 未注册的置顶
     } else {
         ul.appendChild(li);
     }
 }
 
-function copyAvailable(id) {
-    const ul = document.getElementById(id);
-    const domains = Array.from(ul.querySelectorAll('span')).map(s => s.innerText);
-    if (domains.length === 0) return;
+function updateProgress(done, total) {
+    const p = Math.round((done / total) * 100);
+    document.getElementById('barFill').style.width = p + '%';
+    document.getElementById('percentTxt').innerText = p + '%';
+    document.getElementById('statusTxt').innerText = `进度: ${done} / ${total}`;
+}
+
+// 修复后的复制功能
+function copyList(ulId) {
+    const ul = document.getElementById(ulId);
+    // 只选取 class 为 domain-text 的内容（即未注册的）
+    const domains = Array.from(ul.querySelectorAll('.available .domain-text'))
+                         .map(el => el.innerText);
     
-    navigator.clipboard.writeText(domains.join('\n')).then(() => {
-        alert("已复制到剪贴板！");
+    if (domains.length === 0) {
+        alert("没有可复制的未注册域名");
+        return;
+    }
+
+    const text = domains.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "已复制！";
+        btn.style.background = "#22c55e";
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = "";
+        }, 1500);
     });
 }
 </script>
