@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Tools</title>
+    <title>Domain Tools Pro</title>
     <style>
         :root {
             --primary: #4BB7A8;
@@ -25,56 +25,43 @@
         header { text-align: center; margin-bottom: 30px; }
         h1 { color: var(--primary); margin-bottom: 8px; font-weight: 800; }
         
-        /* 交互区 */
         .search-box {
-            background: var(--card);
-            padding: 25px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 2fr 1fr auto;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            margin-bottom: 25px;
+            background: var(--card); padding: 25px; border-radius: 16px;
+            border: 1px solid var(--border); display: grid;
+            grid-template-columns: 2fr 1fr auto; gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 25px;
         }
 
         .input-group { display: flex; flex-direction: column; gap: 5px; }
         .input-group label { font-size: 12px; color: #94a3b8; margin-left: 5px; }
 
         input {
-            padding: 14px; border-radius: 8px;
-            border: 1px solid var(--border); background: #0b1120;
-            color: white; font-size: 16px; outline: none;
+            padding: 14px; border-radius: 8px; border: 1px solid var(--border);
+            background: #0b1120; color: white; font-size: 16px; outline: none;
             transition: border-color 0.3s;
         }
         input:focus { border-color: var(--primary); }
 
         .main-btn {
-            align-self: flex-end;
-            height: 50px; padding: 0 30px; border-radius: 8px; border: none;
-            background: var(--primary); color: white;
+            align-self: flex-end; height: 50px; padding: 0 30px; border-radius: 8px;
+            border: none; background: var(--primary); color: white;
             font-weight: 700; cursor: pointer; transition: 0.2s;
         }
         .main-btn:hover { background: #3aa595; transform: translateY(-1px); }
         .main-btn:disabled { background: #475569; cursor: not-allowed; }
 
-        /* 进度条 */
         .progress-wrap { margin-bottom: 25px; display: none; }
         .bar-bg { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
         .bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
 
-        /* 结果展示 */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .panel { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
-        
         .panel-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .panel-h h2 { font-size: 1.1rem; margin: 0; color: var(--primary); }
 
         ul { 
-            list-style: none; padding: 0; margin: 0; 
-            max-height: 400px; overflow-y: auto; 
-            background: rgba(0,0,0,0.2); border-radius: 8px;
-            border: 1px solid #33415544;
+            list-style: none; padding: 0; margin: 0; max-height: 400px; 
+            overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px;
         }
         li { 
             padding: 10px 15px; border-bottom: 1px solid #33415566; 
@@ -87,14 +74,10 @@
         .copy-btn {
             background: #334155; color: #cbd5e1; border: none;
             padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px;
-            transition: 0.2s;
         }
         .copy-btn:hover { background: var(--primary); color: white; }
 
-        .whois-link { 
-            color: #94a3b8; text-decoration: none; font-size: 11px; 
-            border: 1px solid #475569; padding: 2px 6px; border-radius: 4px;
-        }
+        .whois-link { color: #94a3b8; text-decoration: none; font-size: 11px; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px;}
         .whois-link:hover { color: var(--primary); border-color: var(--primary); }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -112,7 +95,7 @@
     <div class="search-box">
         <div class="input-group">
             <label>核心词</label>
-            <input type="text" id="inputWord" placeholder="如: meta, bit..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
+            <input type="text" id="inputWord" placeholder="如: meta..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
         </div>
         <div class="input-group">
             <label>后缀 (TLD)</label>
@@ -123,7 +106,7 @@
 
     <div class="progress-wrap" id="progressWrap">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-            <span id="statusTxt">初始化中...</span>
+            <span id="statusTxt">就绪</span>
             <span id="percentTxt">0%</span>
         </div>
         <div class="bar-bg"><div class="bar-fill" id="barFill"></div></div>
@@ -133,7 +116,7 @@
         <div class="panel">
             <div class="panel-h">
                 <h2>前缀 [核心词 + 词库]</h2>
-                <button class="copy-btn" onclick="copyList('prefixList', this)">复制未注册</button>
+                <button class="copy-btn" onclick="copyUnregistered('prefixList', this)">复制未注册</button>
             </div>
             <ul id="prefixList"></ul>
         </div>
@@ -141,7 +124,7 @@
         <div class="panel">
             <div class="panel-h">
                 <h2>后缀 [词库 + 核心词]</h2>
-                <button class="copy-btn" onclick="copyList('suffixList', this)">复制未注册</button>
+                <button class="copy-btn" onclick="copyUnregistered('suffixList', this)">复制未注册</button>
             </div>
             <ul id="suffixList"></ul>
         </div>
@@ -149,42 +132,31 @@
 </div>
 
 <script>
-// 默认 Fallback 词库
 let words = ["Alpha","Micro","Meta","Air","Snap","X","Cloud","Blockchain","Crypto","Token","Ledger","Protocol","Consensus","Validator","Node","Chain","Block","Smart","Contract","Oracle","Layer","Bridge","Rollup","Hash","Liquidity","Staking","Yield","Vault","Swap","Lending","Borrow","Pool","Farm","NFT","Mint","Core","Flux","Link","DeFi","Nest","Flow","Pixel","Aura"];
 const CONCURRENCY = 6; 
 
-// 加载外部词库
 fetch('word.txt')
     .then(res => res.ok ? res.text() : Promise.reject())
     .then(data => {
         const loaded = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
         if (loaded.length > 0) words = loaded;
-    })
-    .catch(() => console.log("使用内置词库"));
+    }).catch(() => console.log("使用内置词库"));
 
 async function startCombinedProcess() {
     const input = document.getElementById("inputWord").value.trim().toLowerCase();
-    let suffix = document.getElementById("inputSuffix").value.trim().toLowerCase();
+    let suffix = document.getElementById("inputSuffix").value.trim().toLowerCase().replace(/^\./, '');
     
     if (!input) return alert("请输入核心词");
-    if (!suffix) suffix = "com";
     
-    // 自动处理后缀的点号 (把 .com 变成 com)
-    suffix = suffix.startsWith('.') ? suffix.substring(1) : suffix;
-
-    // UI 重置
     const runBtn = document.getElementById('runBtn');
     const wrap = document.getElementById('progressWrap');
-    const prefixUl = document.getElementById('prefixList');
-    const suffixUl = document.getElementById('suffixList');
     
     runBtn.disabled = true;
     runBtn.innerText = "查询中...";
     wrap.style.display = 'block';
-    prefixUl.innerHTML = '';
-    suffixUl.innerHTML = '';
+    document.getElementById('prefixList').innerHTML = '';
+    document.getElementById('suffixList').innerHTML = '';
 
-    // 生成任务
     let tasks = [];
     words.forEach(w => {
         const cleanW = w.toLowerCase();
@@ -203,7 +175,7 @@ async function startCombinedProcess() {
                 const data = await res.json();
                 renderItem(item.domain, item.type, data.data.registered);
             } catch (e) {
-                console.error("查询失败", item.domain);
+                console.error("失败", item.domain);
             } finally {
                 finished++;
                 updateProgress(finished, total);
@@ -211,9 +183,7 @@ async function startCombinedProcess() {
         }
     }
 
-    const workers = Array(Math.min(CONCURRENCY, tasks.length)).fill(null).map(worker);
-    await Promise.all(workers);
-
+    await Promise.all(Array(Math.min(CONCURRENCY, tasks.length)).fill(null).map(worker));
     runBtn.disabled = false;
     runBtn.innerText = "开始一键查询";
     document.getElementById('statusTxt').innerText = "检查已完成";
@@ -224,14 +194,12 @@ function renderItem(domain, type, isReg) {
     const li = document.createElement('li');
     li.className = isReg ? 'registered' : 'available';
     
+    // 增加 class="domain-name" 方便复制逻辑精准抓取
     const content = isReg 
         ? `<span>${domain}</span>` 
         : `<span class="domain-name">${domain}</span>`;
 
-    li.innerHTML = `
-        ${content}
-        <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">WHOIS</a>
-    `;
+    li.innerHTML = `${content} <a href="https://wxscx.com/${domain}" target="_blank" class="whois-link">WHOIS</a>`;
     
     if (!isReg) ul.insertBefore(li, ul.firstChild);
     else ul.appendChild(li);
@@ -241,21 +209,54 @@ function updateProgress(done, total) {
     const p = Math.round((done / total) * 100);
     document.getElementById('barFill').style.width = p + '%';
     document.getElementById('percentTxt').innerText = p + '%';
-    document.getElementById('statusTxt').innerText = `处理中: ${done} / ${total}`;
+    document.getElementById('statusTxt').innerText = `进度: ${done}/${total}`;
 }
 
-function copyList(ulId, btnEl) {
+// 彻底修复的复制逻辑
+function copyUnregistered(ulId, btnEl) {
     const ul = document.getElementById(ulId);
-    const domains = Array.from(ul.querySelectorAll('.available .domain-name')).map(el => el.innerText);
+    // 只抓取绿色（available）行中的域名文本
+    const domains = Array.from(ul.querySelectorAll('li.available .domain-name'))
+                         .map(el => el.innerText.trim());
     
-    if (domains.length === 0) return alert("无可用域名复制");
+    if (domains.length === 0) return alert("没有可用的未注册域名");
 
-    navigator.clipboard.writeText(domains.join('\n')).then(() => {
-        const oldText = btnEl.innerText;
-        btnEl.innerText = "成功！";
-        btnEl.style.background = "#22c55e";
-        setTimeout(() => { btnEl.innerText = oldText; btnEl.style.background = ""; }, 1500);
-    });
+    const textToCopy = domains.join('\n');
+
+    // 优先使用 Clipboard API，失败则回退到 Textarea 方案
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showSuccess(btnEl, domains.length);
+        }).catch(err => {
+            fallbackCopy(textToCopy, btnEl, domains.length);
+        });
+    } else {
+        fallbackCopy(textToCopy, btnEl, domains.length);
+    }
+}
+
+function fallbackCopy(text, btnEl, count) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showSuccess(btnEl, count);
+    } catch (err) {
+        alert("无法复制，请检查浏览器权限");
+    }
+    document.body.removeChild(textArea);
+}
+
+function showSuccess(btn, count) {
+    const oldText = btn.innerText;
+    btn.innerText = `已复制 ${count} 个`;
+    btn.style.background = "var(--success)";
+    setTimeout(() => { 
+        btn.innerText = oldText; 
+        btn.style.background = ""; 
+    }, 2000);
 }
 </script>
 
