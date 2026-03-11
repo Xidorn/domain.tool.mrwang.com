@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Tools Pro</title>
+    <title>Domain Tools</title>
     <style>
         :root {
             --primary: #4BB7A8;
@@ -12,7 +12,6 @@
             --text: #f1f5f9;
             --border: #334155;
             --success: #22c55e;
-            --error: #ef4444;
         }
 
         body { 
@@ -22,65 +21,64 @@
         }
 
         .container { max-width: 1000px; width: 100%; }
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { color: var(--primary); margin-bottom: 8px; font-weight: 800; }
+        header { text-align: center; margin-bottom: 25px; }
+        h1 { color: var(--primary); margin-bottom: 5px; font-weight: 800; }
         
         .search-box {
-            background: var(--card); padding: 25px; border-radius: 16px;
+            background: var(--card); padding: 20px; border-radius: 16px;
             border: 1px solid var(--border); display: grid;
-            grid-template-columns: 2fr 1fr auto; gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 25px;
+            grid-template-columns: 1fr 1fr 120px; gap: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px;
         }
 
         .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group label { font-size: 12px; color: #94a3b8; margin-left: 5px; }
+        .input-group label { font-size: 12px; color: #94a3b8; margin-left: 5px; font-weight: bold; }
 
-        input {
-            padding: 14px; border-radius: 8px; border: 1px solid var(--border);
-            background: #0b1120; color: white; font-size: 16px; outline: none;
-            transition: border-color 0.3s;
+        input, textarea {
+            padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: #0b1120; color: white; font-size: 15px; outline: none;
+            transition: 0.3s; width: 100%; box-sizing: border-box;
         }
-        input:focus { border-color: var(--primary); }
+        textarea { height: 88px; resize: vertical; font-family: inherit; }
+        input:focus, textarea:focus { border-color: var(--primary); }
 
         .main-btn {
-            align-self: flex-end; height: 50px; padding: 0 30px; border-radius: 8px;
+            align-self: flex-end; height: 48px; border-radius: 8px;
             border: none; background: var(--primary); color: white;
             font-weight: 700; cursor: pointer; transition: 0.2s;
         }
         .main-btn:hover { background: #3aa595; transform: translateY(-1px); }
         .main-btn:disabled { background: #475569; cursor: not-allowed; }
 
-        .progress-wrap { margin-bottom: 25px; display: none; }
-        .bar-bg { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+        .progress-wrap { margin-bottom: 20px; display: none; }
+        .bar-bg { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
         .bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .panel { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
-        .panel-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .panel-h h2 { font-size: 1.1rem; margin: 0; color: var(--primary); }
+        .panel { background: var(--card); border-radius: 12px; padding: 15px; border: 1px solid var(--border); }
+        .panel-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .panel-h h2 { font-size: 1rem; margin: 0; color: var(--primary); }
 
         ul { 
-            list-style: none; padding: 0; margin: 0; max-height: 400px; 
+            list-style: none; padding: 0; margin: 0; max-height: 350px; 
             overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px;
         }
         li { 
             padding: 10px 15px; border-bottom: 1px solid #33415566; 
             display: flex; justify-content: space-between; align-items: center;
-            font-family: 'JetBrains Mono', monospace; font-size: 14px;
+            font-family: 'JetBrains Mono', monospace; font-size: 13px;
         }
         .available { color: var(--success); font-weight: bold; background: rgba(34, 197, 94, 0.05); }
-        .registered { color: #64748b; font-size: 13px; }
+        .registered { color: #64748b; }
 
         .copy-btn {
             background: #334155; color: #cbd5e1; border: none;
-            padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;
         }
         .copy-btn:hover { background: var(--primary); color: white; }
+        .whois-link { color: #94a3b8; text-decoration: none; font-size: 11px; border: 1px solid #475569; padding: 1px 5px; border-radius: 3px; }
 
-        .whois-link { color: #94a3b8; text-decoration: none; font-size: 11px; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px;}
-        .whois-link:hover { color: var(--primary); border-color: var(--primary); }
-
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
@@ -89,23 +87,28 @@
 <div class="container">
     <header>
         <h1>Domain Tools</h1>
-        <p>wangxiansheng.com</p>
+        <p style="font-size: 12px; opacity: 0.6;">优先级：手动词库 > word.txt > 内置 Web3 词库</p>
     </header>
+
+    <div class="input-group" style="margin-bottom: 15px;">
+        <label>手动词库 (一行一个，留空则自动调用外部或默认词库)</label>
+        <textarea id="manualWords" placeholder="在此输入自定义词组..."></textarea>
+    </div>
 
     <div class="search-box">
         <div class="input-group">
             <label>核心词</label>
-            <input type="text" id="inputWord" placeholder="如: meta..." onkeypress="if(event.keyCode==13) startCombinedProcess()">
+            <input type="text" id="inputWord" placeholder="如: bit, meta" onkeypress="if(event.keyCode==13) startCombinedProcess()">
         </div>
         <div class="input-group">
             <label>后缀 (TLD)</label>
             <input type="text" id="inputSuffix" placeholder="com" value="com">
         </div>
-        <button id="runBtn" class="main-btn" onclick="startCombinedProcess()">开始一键查询</button>
+        <button id="runBtn" class="main-btn" onclick="startCombinedProcess()">查询</button>
     </div>
 
     <div class="progress-wrap" id="progressWrap">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
             <span id="statusTxt">就绪</span>
             <span id="percentTxt">0%</span>
         </div>
@@ -115,15 +118,14 @@
     <div class="grid">
         <div class="panel">
             <div class="panel-h">
-                <h2>前缀 [核心词 + 词库]</h2>
+                <h2>前缀模式</h2>
                 <button class="copy-btn" onclick="copyUnregistered('prefixList', this)">复制未注册</button>
             </div>
             <ul id="prefixList"></ul>
         </div>
-
         <div class="panel">
             <div class="panel-h">
-                <h2>后缀 [词库 + 核心词]</h2>
+                <h2>后缀模式</h2>
                 <button class="copy-btn" onclick="copyUnregistered('suffixList', this)">复制未注册</button>
             </div>
             <ul id="suffixList"></ul>
@@ -132,33 +134,52 @@
 </div>
 
 <script>
-let words = ["Alpha","Micro","Meta","Air","Snap","X","Cloud","Blockchain","Crypto","Token","Ledger","Protocol","Consensus","Validator","Node","Chain","Block","Smart","Contract","Oracle","Layer","Bridge","Rollup","Hash","Liquidity","Staking","Yield","Vault","Swap","Lending","Borrow","Pool","Farm","NFT","Mint","Core","Flux","Link","DeFi","Nest","Flow","Pixel","Aura"];
+// 1. 默认备用词库
+const defaultWords = ["Alpha","Micro","Meta","Air","Snap","X","Cloud","Blockchain","Crypto","Token","Ledger","Protocol","Consensus","Validator","Node","Chain","Block","Smart","Contract","Oracle","Layer","Bridge","Rollup","Hash","Liquidity","Staking","Yield","Vault","Swap","Lending","Borrow","Pool","Farm","NFT","Mint","Core","Flux","Link","DeFi","Nest","Flow","Pixel","Aura"];
+let fileWords = [];
 const CONCURRENCY = 6; 
 
+// 2. 预加载 word.txt
 fetch('word.txt')
     .then(res => res.ok ? res.text() : Promise.reject())
     .then(data => {
-        const loaded = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
-        if (loaded.length > 0) words = loaded;
-    }).catch(() => console.log("使用内置词库"));
+        fileWords = data.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
+        console.log("word.txt 加载成功");
+    }).catch(() => console.log("未发现 word.txt"));
 
 async function startCombinedProcess() {
     const input = document.getElementById("inputWord").value.trim().toLowerCase();
-    let suffix = document.getElementById("inputSuffix").value.trim().toLowerCase().replace(/^\./, '');
+    const suffix = document.getElementById("inputSuffix").value.trim().toLowerCase().replace(/^\./, '') || 'com';
     
     if (!input) return alert("请输入核心词");
+
+    // 3. 词库选择优先级逻辑
+    let activeWords = [];
+    const manualInput = document.getElementById("manualWords").value.trim();
     
+    if (manualInput) {
+        // 优先级 1: 手动输入
+        activeWords = manualInput.split(/\r?\n/).map(w => w.trim()).filter(Boolean);
+        console.log("使用手动词库:", activeWords.length);
+    } else if (fileWords.length > 0) {
+        // 优先级 2: word.txt
+        activeWords = fileWords;
+        console.log("使用 word.txt 词库");
+    } else {
+        // 优先级 3: 默认
+        activeWords = defaultWords;
+        console.log("使用内置默认词库");
+    }
+
+    // UI 重置
     const runBtn = document.getElementById('runBtn');
-    const wrap = document.getElementById('progressWrap');
-    
     runBtn.disabled = true;
-    runBtn.innerText = "查询中...";
-    wrap.style.display = 'block';
+    document.getElementById('progressWrap').style.display = 'block';
     document.getElementById('prefixList').innerHTML = '';
     document.getElementById('suffixList').innerHTML = '';
 
     let tasks = [];
-    words.forEach(w => {
+    activeWords.forEach(w => {
         const cleanW = w.toLowerCase();
         tasks.push({ domain: `${input}${cleanW}.${suffix}`, type: 'prefix' });
         tasks.push({ domain: `${cleanW}${input}.${suffix}`, type: 'suffix' });
@@ -174,33 +195,25 @@ async function startCombinedProcess() {
                 const res = await fetch(`https://api.mrwang.com/whois.php?domain=${item.domain}`);
                 const data = await res.json();
                 renderItem(item.domain, item.type, data.data.registered);
-            } catch (e) {
-                console.error("失败", item.domain);
-            } finally {
-                finished++;
-                updateProgress(finished, total);
-            }
+            } catch (e) { console.error(e); }
+            finished++;
+            updateProgress(finished, total);
         }
     }
 
     await Promise.all(Array(Math.min(CONCURRENCY, tasks.length)).fill(null).map(worker));
     runBtn.disabled = false;
-    runBtn.innerText = "开始一键查询";
-    document.getElementById('statusTxt').innerText = "检查已完成";
+    document.getElementById('statusTxt').innerText = "全部完成";
 }
 
 function renderItem(domain, type, isReg) {
     const ul = document.getElementById(type === 'prefix' ? 'prefixList' : 'suffixList');
     const li = document.createElement('li');
     li.className = isReg ? 'registered' : 'available';
-    
-    // 增加 class="domain-name" 方便复制逻辑精准抓取
-    const content = isReg 
-        ? `<span>${domain}</span>` 
-        : `<span class="domain-name">${domain}</span>`;
-
-    li.innerHTML = `${content} <a href="https://wxscx.com/${domain}" target="_blank" class="whois-link">WHOIS</a>`;
-    
+    li.innerHTML = `
+        <span class="domain-name">${domain}</span>
+        <a href="https://www.whois.com/whois/${domain}" target="_blank" class="whois-link">WHOIS</a>
+    `;
     if (!isReg) ul.insertBefore(li, ul.firstChild);
     else ul.appendChild(li);
 }
@@ -209,56 +222,33 @@ function updateProgress(done, total) {
     const p = Math.round((done / total) * 100);
     document.getElementById('barFill').style.width = p + '%';
     document.getElementById('percentTxt').innerText = p + '%';
-    document.getElementById('statusTxt').innerText = `进度: ${done}/${total}`;
+    document.getElementById('statusTxt').innerText = `查询中: ${done}/${total}`;
 }
 
-// 彻底修复的复制逻辑
-function copyUnregistered(ulId, btnEl) {
+// 彻底修复版复制
+function copyUnregistered(ulId, btn) {
     const ul = document.getElementById(ulId);
-    // 只抓取绿色（available）行中的域名文本
-    const domains = Array.from(ul.querySelectorAll('li.available .domain-name'))
-                         .map(el => el.innerText.trim());
+    const domains = Array.from(ul.querySelectorAll('li.available .domain-name')).map(el => el.innerText.trim());
     
-    if (domains.length === 0) return alert("没有可用的未注册域名");
+    if (domains.length === 0) return alert("无可用域名");
 
-    const textToCopy = domains.join('\n');
-
-    // 优先使用 Clipboard API，失败则回退到 Textarea 方案
+    const text = domains.join('\n');
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            showSuccess(btnEl, domains.length);
-        }).catch(err => {
-            fallbackCopy(textToCopy, btnEl, domains.length);
-        });
+        navigator.clipboard.writeText(text).then(() => showStatus(btn, domains.length));
     } else {
-        fallbackCopy(textToCopy, btnEl, domains.length);
+        const ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        showStatus(btn, domains.length);
     }
 }
 
-function fallbackCopy(text, btnEl, count) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-        document.execCommand('copy');
-        showSuccess(btnEl, count);
-    } catch (err) {
-        alert("无法复制，请检查浏览器权限");
-    }
-    document.body.removeChild(textArea);
-}
-
-function showSuccess(btn, count) {
-    const oldText = btn.innerText;
-    btn.innerText = `已复制 ${count} 个`;
+function showStatus(btn, count) {
+    const original = btn.innerText;
+    btn.innerText = `成功(${count})`;
     btn.style.background = "var(--success)";
-    setTimeout(() => { 
-        btn.innerText = oldText; 
-        btn.style.background = ""; 
-    }, 2000);
+    setTimeout(() => { btn.innerText = original; btn.style.background = ""; }, 1500);
 }
 </script>
-
 </body>
 </html>
